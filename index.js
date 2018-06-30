@@ -32,7 +32,7 @@ const init = async () => {
   height = _.get(height, '0.blockNumber', 0);
 
   const count = await newTxLogModel.count();
-  let lastLogRecord = await newTxLogModel.find().skip(count - 1).limit(1);
+  let lastLogRecord = await newTxLogModel.find().skip(count - 1 < 0 ? count - 1 : 0).limit(1);
   let lastLogRecordNumber = _.get(lastLogRecord, '0.blockNumber', 0);
 
   if (lastLogRecordNumber)
