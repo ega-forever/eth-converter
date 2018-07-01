@@ -49,14 +49,17 @@ const init = async () => {
     let logs = await new Promise((res, rej) =>
       web3.eth.filter({fromBlock: i, toBlock: i + 999})
         .get((err, result) => err ? rej(err) : res(result))
-    ).timeout(30000);
+    ).timeout(120000);
 
     logs = logs.map(log => {
       let args = log.topics;
       let nonIndexedLogs = _.chain(log.data.replace('0x', '')).chunk(64).map(chunk => chunk.join('')).value();
+      let dataIndexStart;
 
-      if (args.length && nonIndexedLogs.length)
+      if (args.length && nonIndexedLogs.length) {
+        dataIndexStart = args.length;
         args.push(...nonIndexedLogs);
+      }
 
       const txLog = new newTxLogModel({
         blockNumber: log.blockNumber,
@@ -65,6 +68,7 @@ const init = async () => {
         removed: log.removed,
         signature: _.get(log, 'topics.0'),
         args: log.topics,
+        dataIndexStart: dataIndexStart,
         address: log.address
       });
 

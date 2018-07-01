@@ -21,8 +21,7 @@ const setArgs = function (topics) {
     let bn = BigNumber(topic, 16);
     return {
       c: bn.c,
-      e: bn.e,
-      data: !topic.includes('0x')
+      e: bn.e
     }
   });
 };
@@ -49,6 +48,7 @@ const TxLog = new mongoose.Schema({
   removed: {type: Boolean},
   signature: {type: String},
   args: {type: Array, default: [], set: setArgs, get: getArgs},
+  dataIndexStart: {type: Number},
   address: {type: String}
 }, {_id: false});
 
