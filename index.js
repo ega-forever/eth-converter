@@ -31,8 +31,7 @@ const init = async () => {
   let height = await txLogModel.find().sort({blockNumber: -1}).limit(1);
   height = _.get(height, '0.blockNumber', 0);
 
-  const count = await newTxLogModel.count();
-  let lastLogRecord = await newTxLogModel.find().skip(count - 1 < 0 ?  0 : count - 1).limit(1);
+  let lastLogRecord = await newTxLogModel.find().sort({blockNumber: -1}).limit(1);
   let lastLogRecordNumber = _.get(lastLogRecord, '0.blockNumber', 0);
 
   if (lastLogRecordNumber)
@@ -42,12 +41,14 @@ const init = async () => {
   const provider = new Web3.providers.IpcProvider(`${/^win/.test(process.platform) ? '\\\\.\\pipe\\' : ''}${config.web3.providers[0]}`, net);
   const web3 = new Web3(provider);
 
+  const step = 100;
 
-  for (let i = lastLogRecordNumber; i < height; i += 1000) {
+
+  for (let i = lastLogRecordNumber; i < height; i += step) {
     let startDate = Date.now();
 
     let logs = await new Promise((res, rej) =>
-      web3.eth.filter({fromBlock: i, toBlock: i + 999})
+      web3.eth.filter({fromBlock: i, toBlock: i + step - 1})
         .get((err, result) => err ? rej(err) : res(result))
     ).timeout(120000);
 
@@ -87,9 +88,11 @@ const init = async () => {
 
     if (bulkOps.length)
       await newTxLogModel.bulkWrite(bulkOps);
-    console.log(`inserted logs in range ${i} to ${i + 999} took: ${(Date.now() - startDate) / 1000}s`);
+    console.log(`inserted logs in range ${i} to ${i + step - 1} took: ${(Date.now() - startDate) / 1000}s`);
   }
 
+
+  console.log('migration completed!');
 
 };
 

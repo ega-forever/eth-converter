@@ -42,7 +42,7 @@ const getArgs = topics => {
 
 const TxLog = new mongoose.Schema({
   _id: {type: String},
-  blockNumber: {type: Number, required: true, default: -1},
+  blockNumber: {type: Number, required: true, default: -1, index: true},
   txIndex: {type: Number, required: true},
   index: {type: Number},
   removed: {type: Boolean},
