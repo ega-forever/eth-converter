@@ -28,6 +28,9 @@ const init = async () => {
     throw new Error('mongo disconnected!');
   });
 
+  console.log('create indexes...');
+  await newTxLogModel.init();
+
   let height = await txLogModel.find().sort({blockNumber: -1}).limit(1);
   height = _.get(height, '0.blockNumber', 0);
 
