@@ -42,14 +42,20 @@ const getArgs = topics => {
 
 const TxLog = new mongoose.Schema({
   _id: {type: String},
-  blockNumber: {type: Number, required: true, default: -1, index: true},
+  blockNumber: {type: Number, required: true, default: -1},
   txIndex: {type: Number, required: true},
   index: {type: Number},
   removed: {type: Boolean},
   signature: {type: String},
   args: {type: Array, default: [], set: setArgs, get: getArgs},
   dataIndexStart: {type: Number},
-  address: {type: String}
+  address: {type: String, index: true}
 }, {_id: false});
+
+
+TxLog.index({blockNumber: 1, txIndex: 1, index: 1});
+TxLog.index({signature: 1});
+TxLog.index({'args.e': 1, 'args.c': 1, 'args.index': 1}, {sparse: true});
+
 
 module.exports = mongoose.model(`new_${config.mongo.data.collectionPrefix}TxLog`, TxLog);
